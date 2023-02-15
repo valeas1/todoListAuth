@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { createBrowserRouter } from 'react-router-dom';
 import { privatRouter, publicRouter } from './routes/routes';
-import { createBrowserHistory } from 'history';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { getUser } from './store/userSlice';
@@ -22,10 +21,7 @@ function App() {
     }, [dispatch]);
 
     useEffect(() => {
-        const history = createBrowserHistory();
-
         if (loadingStatus === 'error') {
-            // history.push('/login');
             setIsLoading(false);
         } else if (loadingStatus === 'done') {
             setIsLoading(false);
