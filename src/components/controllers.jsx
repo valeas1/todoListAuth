@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useAddTodoMutation, useDeleteAllTodoMutation } from '../store/todoApi';
 import { useDispatch } from 'react-redux';
 import { setSearch } from '../store/searchSlice';
-import { removeUser } from '../store/userSlice';
+import { removeUser, setLoadingStatus } from '../store/userSlice';
 import { Flex, Input, Button } from '@chakra-ui/react';
 
 import { getAuth, signOut } from 'firebase/auth';
@@ -37,13 +37,20 @@ const Controllers = () => {
         inputSerachRef.current.value = '';
     };
 
-    const handleLogout = () => {
+    const logout = () => {
         const auth = getAuth();
-        const history = createBrowserHistory();
 
         signOut(auth);
 
         dispatch(removeUser());
+        dispatch(setLoadingStatus('loading'));
+    };
+
+    const handleLogout = () => {
+        const history = createBrowserHistory();
+
+        logout();
+
         history.push('/');
     };
 

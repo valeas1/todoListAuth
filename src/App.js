@@ -1,38 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { RouterProvider } from 'react-router-dom';
 import { createBrowserRouter } from 'react-router-dom';
 import { privatRouter, publicRouter } from './routes/routes';
+import { createBrowserHistory } from 'history';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { setUser } from './store/userSlice';
+import { getUser } from './store/userSlice';
 
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Spinner, Box } from '@chakra-ui/react';
 
 function App() {
     const dispatch = useDispatch();
 
+    const [isLoading, setIsLoading] = useState(true);
+
+    const loadingStatus = useSelector((state) => state.user.loading);
+
     useEffect(() => {
-        const auth = getAuth();
+        dispatch(getUser());
+    }, [dispatch]);
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                dispatch(
-                    setUser({
-                        email: user.email,
-                        token: user.accessToken,
-                        id: user.uid,
-                    })
-                );
-            }
-        });
-    }, []);
+    useEffect(() => {
+        const history = createBrowserHistory();
 
-    const authStatus = useSelector((state) => state.user.email);
+        if (loadingStatus === 'error') {
+            // history.push('/login');
+            setIsLoading(false);
+        } else if (loadingStatus === 'done') {
+            setIsLoading(false);
+        }
+    }, [loadingStatus]);
 
-    const router = authStatus ? createBrowserRouter(privatRouter) : createBrowserRouter(publicRouter);
-
-    return <RouterProvider router={router} />;
+    if (isLoading) {
+        return (
+            <Box display="flex" justifyContent="center" pt="40px">
+                <Spinner thickness="4px" speed="0.5s" size="xl" color="#79C6C6" />
+            </Box>
+        );
+    } else {
+        return (
+            <RouterProvider
+                router={
+                    loadingStatus === 'done' ? createBrowserRouter(privatRouter) : createBrowserRouter(publicRouter)
+                }
+            />
+        );
+    }
 }
 
 export default App;
